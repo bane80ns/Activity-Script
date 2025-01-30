@@ -1,13 +1,6 @@
 import pymysql
-from faker import Faker
-import random
-from datetime import datetime, timedelta
-
-
-####### DB
 
 # Database connection
-
 db_name = "activity_db"
 
 connection = pymysql.connect(
@@ -22,8 +15,10 @@ cursor = connection.cursor()
 
 
 
-activity = "logout"
 
+
+
+# def to check if activity is valid
 def activity_type_check(activity):
     activity_type = ["login", "logout", "homework", "video_watch"]
     try:
@@ -35,10 +30,12 @@ def activity_type_check(activity):
         raise ValueError("Activity type is not valid")
 
 
+# add activity not finished yet.
 def add_activity(activity):
     return activity
 
 
+# Check highest activity in 7 days, and list 10 highest active users descending
 def last_week_activity():
 
     query_data = ("SELECT user_id, COUNT(*) AS activity_count "
@@ -56,7 +53,7 @@ def last_week_activity():
 
 # last_week_activity()
 
-
+# Check current day activities, and list active users descending by activity
 def current_day_activity():
     query_data = ("SELECT user_id, COUNT(*) AS activity_count "
                   "FROM activity_table "
