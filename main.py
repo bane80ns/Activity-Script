@@ -38,6 +38,7 @@ def add_activity(activity, user_id):
     sql_values = (user_id, activity, datetime.now())
     cursor.execute(query_date, sql_values)
     connection.commit()
+    cursor.close()
     connection.close()
 
 
@@ -62,8 +63,10 @@ def last_week_activity():
     rows = cursor.fetchall()
     for row in rows:
         print(f"User id:{row["user_id"]:4}       Activity Count: {row["activity_count"]:2}")
-
+    cursor.close()
+    connection.close()
 # last_week_activity()
+
 
 # Check current day activities, and list active users descending by activity
 def current_day_activity():
@@ -77,8 +80,12 @@ def current_day_activity():
     rows = cursor.fetchall()
     for row in rows:
         print(f"User id:{row["user_id"]:4}       Activity Count: {row["activity_count"]:2}")
+    cursor.close()
+    connection.close()
+
 
 # current_day_activity()
+
 
 
 
