@@ -1,4 +1,5 @@
 import pymysql
+from datetime import datetime
 
 # Database connection
 db_name = "activity_db"
@@ -15,7 +16,7 @@ cursor = connection.cursor()
 
 
 
-
+# print(datetime.now())
 
 
 # def to check if activity is valid
@@ -30,9 +31,20 @@ def activity_type_check(activity):
         raise ValueError("Activity type is not valid")
 
 
-# add activity not finished yet.
-def add_activity(activity):
-    return activity
+# add activity into db with
+def add_activity(activity, user_id):
+    activity_type = activity_type_check(activity)
+    query_date = ("INSERT INTO activity_table (user_id, activity_name, entrance_datetime) VALUES (%s, %s, %s) ")
+    sql_values = (user_id, activity, datetime.now())
+    cursor.execute(query_date, sql_values)
+    connection.commit()
+    connection.close()
+
+
+
+# add_activity("homework", 18)
+
+
 
 
 # Check highest activity in 7 days, and list 10 highest active users descending
