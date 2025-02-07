@@ -1,4 +1,5 @@
 from db import Db
+from methods import *
 
 db = Db()
 
@@ -9,8 +10,8 @@ db = Db()
 #print(daily_activities(db, 7))
 
 # move activities older than 90 days to archive_activities_table
-#archive_activities()
+archive_activities()
 
 
 
-
+db.close()

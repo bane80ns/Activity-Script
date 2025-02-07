@@ -60,46 +60,37 @@ def daily_activities(db, number_of_days):
 
 
 def archive_activities():
-    # Copy data older than 90 days to archive table.
-    query_copy_data = """
-        INSERT INTO archive_activity_table (activity_id, user_id, activity_name, entrance_datetime)
-        SELECT activity_id, user_id, activity_name, entrance_datetime
-        FROM activity_table
-        WHERE entrance_datetime < NOW() - INTERVAL 90 DAY
-    """
-    db.execute(query_copy_data)
-    print("Data older than 90 days copied to archive_activity_table successfully.")
+    try:
+        # Step 1: Start a transaction (ensures both copy & delete run together)
+        db.execute("START TRANSACTION")
+        print("Transaction started.")
 
-    # Count records in main table
-    query_count_main_table = """
-        SELECT COUNT(*) AS count FROM activity_table
-        WHERE entrance_datetime < NOW() - INTERVAL 90 DAY
-    """
-    main_result = db.query(query_count_main_table)
-    main_count = main_result[0]["count"] if main_result else 0
+        # Step 2: Copy all records older than 90 days
+        query_copy_data = """
+            INSERT INTO archive_activity_table (activity_id, user_id, activity_name, entrance_datetime)
+            SELECT activity_id, user_id, activity_name, entrance_datetime
+            FROM activity_table
+            WHERE entrance_datetime < NOW() - INTERVAL 90 DAY
+        """
+        db.execute(query_copy_data)
+        print("Data older than 90 days copied to archive_activity_table successfully.")
 
-    # Count records in archive table
-    query_count_archive_table = """
-        SELECT COUNT(*) AS count_archive FROM archive_activity_table
-        WHERE entrance_datetime < NOW() - INTERVAL 90 DAY
-    """
-    archive_result = db.query(query_count_archive_table)
-    archive_count = archive_result[0]["count_archive"] if archive_result else 0
-
-    #Debugging Info
-    print(f"Main Table Count: {main_count}")
-    print(f"Archive Table Count: {archive_count}")
-
-    # Compare counts before deleting
-    if main_count == archive_count:
+        # Step 3: Delete only the records that were just copied
         delete_query = """
             DELETE FROM activity_table
             WHERE entrance_datetime < NOW() - INTERVAL 90 DAY
         """
         db.execute(delete_query)
         print("Archived data successfully removed from main table.")
-    else:
-        print("Main and archive tables do not match. No data was deleted.")
+
+        # Step 4: Commit the transaction (make changes permanent)
+        db.execute("COMMIT")
+        print("Transaction committed. Archive process completed.")
+
+    except Exception as e:
+        # If anything fails, rollback (undo changes)
+        db.execute("ROLLBACK")
+        print(f"Transaction failed! Changes rolled back. Error: {e}")
 
 # Run the function
 #archive_activities()
