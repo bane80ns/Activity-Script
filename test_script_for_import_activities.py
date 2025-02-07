@@ -1,7 +1,14 @@
+# Script for importing 20 random activities into activity_db >> activity_table
+# older than 90 days for testing purposes.
+
+### imports
 import pymysql
 from datetime import datetime
 from config import activity_types
 import random
+
+
+
 
 # Database connection
 db_name = "activity_db"
@@ -19,8 +26,6 @@ cursor = connection.cursor()
 import pymysql
 import random
 from datetime import datetime, timedelta
-
-
 
 
 # Generate 20 random activity records
