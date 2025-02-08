@@ -1,14 +1,17 @@
 ### imports
-from config import *
+from config import activity_types
 from datetime import datetime
 from db import Db
 from config import activity_types
 import json
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+
 
 db = Db()
 
 
-# def to check if activity is valid (if activity exists in config activitie_types dictionary)
+# def to check if activity is valid (if activity exists in config activity_types dictionary)
 def activity_type_check(activity):
     try:
         if activity in activity_types:
@@ -19,14 +22,13 @@ def activity_type_check(activity):
         raise ValueError("Activity type is not valid")
 
 
-# Add activity into db (activity_table) with activity type taken from activity_type dict, also adds time when that activity happend.
+# Add activity into db (activity_table) with activity type taken from activity_type dict, also adds time when that activity occurred.
 def add_activity(db, activity, user_id):
     activity_type = activity_type_check(activity)
     query_date = "INSERT INTO activity_table (user_id, activity_name, entrance_datetime) VALUES (%s, %s, %s) "
     sql_values = (user_id, activity, datetime.now())
 
     db.execute(query_date, sql_values)
-
 
 # example for call the function add_activity
 # add_activity(db, "logout", 18)
@@ -51,7 +53,6 @@ def daily_activities(db, number_of_days):
         return {}
     else:
         return {row["user_id"]: row["activity_count"] for row in rows}
-
 
 # example for function daily_activities
 # print(daily_activities(db, 15))
@@ -89,7 +90,6 @@ def archive_activities():
         # If anything fails, rollback (undo changes)
         db.execute("ROLLBACK")
         print(f"Transaction failed! Changes rolled back. Error: {e}")
-
 
 # Run the function
 # archive_activities()
@@ -137,14 +137,11 @@ def activity_details_for_single_user_by_day(db, user_id, number_of_days):
 
     return user_data
 
-
-# print details for sinle user for X past days
+# print details for single user for X past days
 # print(activity_details_for_single_user_by_day(db, 2, 30))
 
 
 def export_to_json(user_data):
-
-
     if "message" in user_data:
         print(user_data["message"])
         return
@@ -164,6 +161,53 @@ def export_to_json(user_data):
 
     print(f"Data successfully exported to {filename}")
 
+# user_activity = activity_details_for_single_user_by_day(db, 1, 30)  # Fetch user data
+# export_to_json(user_activity)
 
-#user_activity = activity_details_for_single_user_by_day(db, 1, 30)  # Fetch user data
-#export_to_json(user_activity)
+
+def export_to_pdf(user_activity):
+    # create a PDF file
+    pdf = canvas.Canvas(
+        f"report_{user_activity['first_name']}{user_activity['last_name']}.pdf",
+        pagesize=letter,
+    )
+    width, height = letter
+
+    main_title = f"Activity Report for user {user_activity['first_name']} {user_activity['last_name']}"
+
+    # Title
+    pdf.setFont("Helvetica-Bold", 18)
+    pdf.drawCentredString(width / 2, height - 50, main_title)
+
+    # Define sections (dates for past days activities)
+    sections = {}
+    for date, activity_list in user_activity["activities"].items():
+        sections[date] = []
+
+        for activity_entry in activity_list:
+            time, activity_name = activity_entry.split(" - ")  # Extract time & name
+            sections[date].append({"time": time, "name": activity_name})
+
+    y_position = height - 100  # Start below the title
+
+    for section, activity_list in sections.items():
+        # Convert date to string
+        section_str = str(section)
+
+        # Add subsection title (Bold)
+        pdf.setFont("Helvetica-Bold", 14)
+        pdf.drawString(100, y_position, section_str)
+        y_position -= 20  # Move down for text
+
+        # Add activities
+        pdf.setFont("Helvetica", 12)
+
+        for activity in activity_list:
+            activity_text = f"{activity['time']} - {activity['name']}"
+            pdf.drawString(120, y_position, activity_text)
+            y_position -= 20
+
+        y_position -= 20
+
+    # Save the PDF
+    pdf.save()
