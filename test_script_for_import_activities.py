@@ -29,12 +29,12 @@ from datetime import datetime, timedelta
 
 
 # Generate 20 random activity records
-for _ in range(20):
+for _ in range(5):
     user_id = random.randint(1, 20)  # Random user_id between 1-20
     activity_name = random.choice(activity_types)  # Random activity name
 
     # Generate a random date between 91 and 180 days ago
-    random_days_ago = random.randint(91, 180)
+    random_days_ago = random.randint(94, 95)
     entrance_datetime = datetime.now() - timedelta(days=random_days_ago)
     formatted_date = entrance_datetime.strftime('%Y-%m-%d %H:%M:%S')
 

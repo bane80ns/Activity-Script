@@ -94,3 +94,50 @@ def archive_activities():
 
 # Run the function
 #archive_activities()
+
+
+def activity_details_for_single_user_by_day(db, user_id, number_of_days):
+    query_data = f"""
+        SELECT 
+            u.first_name,
+            u.last_name,
+            u.username,
+            u.email,
+            DATE(a.entrance_datetime) AS activity_date, 
+            TIME(a.entrance_datetime) AS activity_time, 
+            a.activity_name
+        FROM activity_table a
+        JOIN user u ON a.user_id = u.id
+        WHERE a.user_id = %s
+        AND a.entrance_datetime >= NOW() - INTERVAL {int(number_of_days)} DAY
+        ORDER BY activity_date DESC, activity_time ASC;
+    """
+    rows = db.query(query_data, (user_id,))
+
+    if not rows:
+        return {"message": "No activities found for this user"}
+
+
+    user_info = {
+        "first_name": rows[0]["first_name"],
+        "last_name": rows[0]["last_name"],
+        "username": rows[0]["username"],
+        "email": rows[0]["email"]
+    }
+
+    user_data = {
+        **user_info,
+        "activities": {}
+    }
+
+    for row in rows:
+        day = row['activity_date']
+        time = row['activity_time']
+        activity = row['activity_name']
+
+        if day not in user_data["activities"]:
+            user_data["activities"][day] = []
+
+        user_data["activities"][day].append(f"{time} - {activity}")
+
+    return user_data
