@@ -3,15 +3,13 @@ from config import *
 from datetime import datetime
 from db import Db
 from config import activity_types
+import json
 
 db = Db()
 
 
-
-
 # def to check if activity is valid (if activity exists in config activitie_types dictionary)
 def activity_type_check(activity):
-
     try:
         if activity in activity_types:
             return activity
@@ -23,13 +21,12 @@ def activity_type_check(activity):
 
 # Add activity into db (activity_table) with activity type taken from activity_type dict, also adds time when that activity happend.
 def add_activity(db, activity, user_id):
-
     activity_type = activity_type_check(activity)
     query_date = "INSERT INTO activity_table (user_id, activity_name, entrance_datetime) VALUES (%s, %s, %s) "
     sql_values = (user_id, activity, datetime.now())
 
-
     db.execute(query_date, sql_values)
+
 
 # example for call the function add_activity
 # add_activity(db, "logout", 18)
@@ -51,12 +48,13 @@ def daily_activities(db, number_of_days):
     rows = db.query(query_data)
 
     if rows is None:
-       return {}
+        return {}
     else:
         return {row["user_id"]: row["activity_count"] for row in rows}
 
+
 # example for function daily_activities
-#print(daily_activities(db, 15))
+# print(daily_activities(db, 15))
 
 
 def archive_activities():
@@ -92,8 +90,9 @@ def archive_activities():
         db.execute("ROLLBACK")
         print(f"Transaction failed! Changes rolled back. Error: {e}")
 
+
 # Run the function
-#archive_activities()
+# archive_activities()
 
 
 def activity_details_for_single_user_by_day(db, user_id, number_of_days):
@@ -117,23 +116,19 @@ def activity_details_for_single_user_by_day(db, user_id, number_of_days):
     if not rows:
         return {"message": "No activities found for this user"}
 
-
     user_info = {
         "first_name": rows[0]["first_name"],
         "last_name": rows[0]["last_name"],
         "username": rows[0]["username"],
-        "email": rows[0]["email"]
+        "email": rows[0]["email"],
     }
 
-    user_data = {
-        **user_info,
-        "activities": {}
-    }
+    user_data = {**user_info, "activities": {}}
 
     for row in rows:
-        day = row['activity_date']
-        time = row['activity_time']
-        activity = row['activity_name']
+        day = row["activity_date"]
+        time = row["activity_time"]
+        activity = row["activity_name"]
 
         if day not in user_data["activities"]:
             user_data["activities"][day] = []
@@ -141,3 +136,34 @@ def activity_details_for_single_user_by_day(db, user_id, number_of_days):
         user_data["activities"][day].append(f"{time} - {activity}")
 
     return user_data
+
+
+# print details for sinle user for X past days
+# print(activity_details_for_single_user_by_day(db, 2, 30))
+
+
+def export_to_json(user_data):
+
+
+    if "message" in user_data:
+        print(user_data["message"])
+        return
+
+    # Convert datetime.date to string (YYYY-MM-DD)
+    if "activities" in user_data:
+        new_activities = {}
+        for day, activities in user_data["activities"].items():
+            new_activities[str(day)] = activities
+        user_data["activities"] = new_activities
+
+    # Make filename from user first and last name
+    filename = f"user_{user_data['first_name']}{user_data['last_name']}_activities.json"
+
+    with open(filename, "w", encoding="utf-8") as json_file:
+        json.dump(user_data, json_file, indent=4, ensure_ascii=False)
+
+    print(f"Data successfully exported to {filename}")
+
+
+#user_activity = activity_details_for_single_user_by_day(db, 1, 30)  # Fetch user data
+#export_to_json(user_activity)

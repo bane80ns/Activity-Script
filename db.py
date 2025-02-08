@@ -1,14 +1,17 @@
 import pymysql
 
+
 class Db:
-    def __init__(self, host = "localhost", user = "root", password = "root", db = "activity_db"):
+    def __init__(
+        self, host="localhost", user="root", password="root", db="activity_db"
+    ):
         try:
             self.connection = pymysql.connect(
-                host='localhost',  # localhost - Local PC, or 127.0.0.1 (This field is for DB IP address)
-                user='root',  # username created for accessing DB (Database)
-                password='root',  # password created for accessing DB
+                host="localhost",  # localhost - Local PC, or 127.0.0.1 (This field is for DB IP address)
+                user="root",  # username created for accessing DB (Database)
+                password="root",  # password created for accessing DB
                 database=db,  # DB name
-                cursorclass=pymysql.cursors.DictCursor
+                cursorclass=pymysql.cursors.DictCursor,
                 #   port=xxxx # Port which we use for connecting to DB (in our case not needed)
             )
             self.cursor = self.connection.cursor()
@@ -37,7 +40,6 @@ class Db:
         except pymysql.MySQLError as e:
             print(f"Query failed: {e}")
 
-
     def execute(self, sql, params=None):
         if self.connection is None:
             print("Execution failed no DB connection")
@@ -48,12 +50,7 @@ class Db:
         except pymysql.MySQLError as e:
             print(f"Execution failed: {e}")
 
-
     def close(self):
         if self.connection:
             self.cursor.close()
             self.connection.close()
-
-
-
-
