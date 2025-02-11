@@ -1,5 +1,6 @@
+from models.activities import *
+from models.exports import *
 from db import Db
-from methods import *
 
 
 db = Db()
@@ -7,7 +8,7 @@ db = Db()
 
 # add activity to db
 # example: (db - database, "logout" - activity name, user_id)
-# add_activity(db, "logout", 11)
+#add_activity(db, "logout", 11)
 
 
 # print latest activities in the past X days, sorted by most active users
@@ -22,17 +23,21 @@ db = Db()
 
 # print details for single user for X past days (db - database, 2 - user_id, 30 - number of days)
 # example:
-# print(activity_details_for_single_user_by_day(db, 2, 30))
+#print(activity_details_for_single_user_by_day(db, 2, 30))
 
 
-# user_activity = activity_details_for_single_user_by_day(db, 3, 30)  # Fetch user data
+# user_activity = activity_details_for_single_user_by_day(db, 1, 30)  # Fetch user data
 # example:
-# export_to_json(user_activity)
+#export_to_json(user_activity)
 
 
 # user_activity = activity_details_for_single_user_by_day(db, 3, 30)  # Fetch user data
 # example:
 # export_to_pdf(user_activity)
 
+
+
+# def that returns list of dictionaries of inactive users for X days that we provide
+#print(inactive_users(db, 15))
 
 db.close()
