@@ -1,6 +1,7 @@
 from models.activities import *
 from models.exports import *
 from db import Db
+import sys
 
 
 db = Db()
@@ -31,7 +32,7 @@ db = Db()
 #export_to_json(user_activity)
 
 
-# user_activity = activity_details_for_single_user_by_day(db, 3, 30)  # Fetch user data
+#user_activity = activity_details_for_single_user_by_day(db, 3, 30)  # Fetch user data
 # example:
 # export_to_pdf(user_activity)
 
@@ -39,5 +40,10 @@ db = Db()
 
 # def that returns list of dictionaries of inactive users for X days that we provide
 #print(inactive_users(db, 15))
+
+
+# chart(user_activities)
+# user_activities = activity_details_for_single_user_by_day(db, 7, 60)  # Fetch user data
+# chart(user_activities)
 
 db.close()
