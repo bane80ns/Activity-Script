@@ -43,7 +43,7 @@ db = Db()
 
 
 # chart(user_activities)
-# user_activities = activity_details_for_single_user_by_day(db, 7, 60)  # Fetch user data
-# chart(user_activities)
+user_activities = activity_details_for_single_user_by_day(db, 7, 60)  # Fetch user data
+chart(user_activities)
 
 db.close()

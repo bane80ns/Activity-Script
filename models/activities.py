@@ -2,9 +2,7 @@
 from datetime import datetime
 from db import Db
 from config import activity_types
-import matplotlib
-import matplotlib.pyplot as plt
-import numpy as np
+
 
 
 db = Db()
@@ -163,26 +161,3 @@ def inactive_users(db, number_of_days):
         print(row)
 
     return rows
-
-
-
-def chart(user_activities):
-    matplotlib.use("TkAgg")
-    dates = []
-    activity_counts = []
-
-    for activity_date, activity_list in user_activities["activities"].items():
-        dates.append(activity_date.strftime("%Y-%m-%d"))
-        activity_counts.append(len(activity_list))
-
-
-    plt.figure(figsize=(8, 5))  # Set figure size
-    plt.bar(dates, activity_counts, color='green')  # Bar chart
-    plt.xlabel("Date")  # X-axis label
-    plt.ylabel("Number of Activities")  # Y-axis label
-    plt.title("User Activities Over Time")  # Chart title
-    plt.xticks(rotation=15)  # Rotate date labels for readability
-    plt.grid(axis="y", linestyle="--", alpha=0.7)  # Add horizontal grid lines
-
-
-    plt.show()
