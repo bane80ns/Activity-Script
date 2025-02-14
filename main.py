@@ -32,10 +32,9 @@ db = Db()
 #export_to_json(user_activity)
 
 
-#user_activity = activity_details_for_single_user_by_day(db, 3, 30)  # Fetch user data
+user_activity = activity_details_for_single_user_by_day(db, 3, 30)  # Fetch user data
 # example:
 # export_to_pdf(user_activity)
-
 
 
 # def that returns list of dictionaries of inactive users for X days that we provide
@@ -43,7 +42,20 @@ db = Db()
 
 
 # chart(user_activities)
-user_activities = activity_details_for_single_user_by_day(db, 7, 60)  # Fetch user data
-chart(user_activities)
+#user_activities = activity_details_for_single_user_by_day(db, 7, 60)  # Fetch user data
+#chart(user_activities)
+
+
+#print(all_users_activities_for_period(db, 25))
+
+
+#Example for exporting to PDF from user activity
+# exporter = PdfExporter(user_activity)
+# exporter.generate_report()
+
+
+#print(user_activity)
+
+
 
 db.close()

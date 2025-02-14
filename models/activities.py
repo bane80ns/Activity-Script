@@ -138,7 +138,7 @@ def activity_details_for_single_user_by_day(db, user_id, number_of_days):
 
 # def that returns list of dictionaries of inactive users for X days that we provide
 def inactive_users(db, number_of_days):
-    matplotlib.use('Agg')
+
     query_data = f"""
     SELECT u.first_name, u.last_name, u.email, u.username
     FROM user u
@@ -161,3 +161,17 @@ def inactive_users(db, number_of_days):
         print(row)
 
     return rows
+
+
+
+def all_users_activities_for_period(db, number_of_days):
+    query_data = f"""
+        SELECT activity_name, COUNT(*) AS activity_count
+        FROM activity_table
+        WHERE entrance_datetime >= NOW() - INTERVAL {int(number_of_days)} DAY
+        GROUP BY activity_name        
+    """
+    rows = db.query(query_data)
+    return rows
+
+#print(all_users_activities_for_period(db, 25))

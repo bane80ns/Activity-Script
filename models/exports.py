@@ -29,55 +29,106 @@ def export_to_json(user_data):
 # export_to_json(user_activity)
 
 
-def export_to_pdf(user_activity):
-    # create a PDF file
-    pdf = canvas.Canvas(
-        f"report_{user_activity['first_name']}{user_activity['last_name']}.pdf",
-        pagesize=letter,
-    )
-    width, height = letter
+class PdfExporter:
+    def __init__(self, user_activity):
+        self.user_activity = user_activity
+        self.filename = f"user_{user_activity['first_name']}{user_activity['last_name']}_activities.pdf"
+        self.width, self.height = letter
+        self.pdf = canvas.Canvas(self.filename, pagesize = letter)
 
-    main_title = f"Activity Report for user {user_activity['first_name']} {user_activity['last_name']}"
 
-    # Title
-    pdf.setFont("Helvetica-Bold", 18)
-    pdf.drawCentredString(width / 2, height - 50, main_title)
+    def add_title_pdf(self):
+        main_title = f"Activity Report for user {self.user_activity['first_name']} {self.user_activity['last_name']}"
+        self.pdf.setFont("Helvetica-Bold", 18)
+        self.pdf.drawCentredString(self.width / 2, self.height - 50, main_title)
 
-    # Define sections (dates for past days activities)
-    sections = {}
-    for date, activity_list in user_activity["activities"].items():
-        sections[date] = []
 
-        for activity_entry in activity_list:
-            time, activity_name = activity_entry.split(" - ")  # Extract time & name
-            sections[date].append({"time": time, "name": activity_name})
+    def add_activities_pdf(self):
+        sections = {}
 
-    y_position = height - 100  # Start below the title
+        for date, activity_list in self.user_activity["activities"].items():
+            sections[date] = []
 
-    for section, activity_list in sections.items():
-        # Convert date to string
-        section_str = str(section)
+            for activity_entry in activity_list:
+                time, activity_name = activity_entry.split(" - ")
+                sections[date].append({"time": time, "name": activity_name})
 
-        # Add subsection title (Bold)
-        pdf.setFont("Helvetica-Bold", 14)
-        pdf.drawString(100, y_position, section_str)
-        y_position -= 20  # Move down for text
+        y_position = self.height - 100  # Start below the title
 
-        # Add activities
-        pdf.setFont("Helvetica", 12)
-
-        for activity in activity_list:
-            activity_text = f"{activity['time']} - {activity['name']}"
-            pdf.drawString(120, y_position, activity_text)
+        for section, activity_list in sections.items():
+            section_str = str(section)
+            self.pdf.setFont("Helvetica-Bold", 14)
+            self.pdf.drawString(100, y_position, section_str)
             y_position -= 20
 
-        y_position -= 20
+            self.pdf.setFont("Helvetica", 12)
 
-    # Save the PDF
-    pdf.save()
+            for activity in activity_list:
+                activity_text = f"{activity['time']} - {activity['name']}"
+                self.pdf.drawString(120, y_position, activity_text)
+                y_position -= 20
+
+            y_position -= 20
+
+    def save_to_pdf(self):
+        self.pdf.save()
+
+
+    def generate_report(self):
+        self.add_title_pdf()
+        self.add_activities_pdf()
+        self.save_to_pdf()
+
+# def export_to_pdf(user_activity):
+#     # create a PDF file
+#     pdf = canvas.Canvas(
+#         f"report_{user_activity['first_name']}{user_activity['last_name']}.pdf",
+#         pagesize=letter,
+#     )
+#     width, height = letter
+#
+#     main_title = f"Activity Report for user {user_activity['first_name']} {user_activity['last_name']}"
+#
+#     # Title
+#     pdf.setFont("Helvetica-Bold", 18)
+#     pdf.drawCentredString(width / 2, height - 50, main_title)
+#
+#     # Define sections (dates for past days activities)
+#     sections = {}
+#     for date, activity_list in user_activity["activities"].items():
+#         sections[date] = []
+#
+#         for activity_entry in activity_list:
+#             time, activity_name = activity_entry.split(" - ")  # Extract time & name
+#             sections[date].append({"time": time, "name": activity_name})
+#
+#     y_position = height - 100  # Start below the title
+#
+#     for section, activity_list in sections.items():
+#         # Convert date to string
+#         section_str = str(section)
+#
+#         # Add subsection title (Bold)
+#         pdf.setFont("Helvetica-Bold", 14)
+#         pdf.drawString(100, y_position, section_str)
+#         y_position -= 20  # Move down for text
+#
+#         # Add activities
+#         pdf.setFont("Helvetica", 12)
+#
+#         for activity in activity_list:
+#             activity_text = f"{activity['time']} - {activity['name']}"
+#             pdf.drawString(120, y_position, activity_text)
+#             y_position -= 20
+#
+#         y_position -= 20
+#
+#     # Save the PDF
+#     pdf.save()
 
 
 
+# Create chart from user_activities
 def chart(user_activities):
     matplotlib.use("TkAgg")
     dates = []
